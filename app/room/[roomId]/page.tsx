@@ -1,15 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { ArrowLeft, Users, Code2, Share2, Check } from 'lucide-react';
+import * as Y from 'yjs';
+import { WebsocketProvider } from 'y-websocket';
 import { Button } from '@/components/ui/button';
 import { LanguageKey, languages } from '@/lib/languages';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { getRandomUser } from '@/lib/user';
 
-// Dynamically import the Editor component with SSR disabled
+// Dynamically import client-only Yjs-bound components
 const Editor = dynamic(() => import('@/components/Editor'), { ssr: false });
+const Notepad = dynamic(() => import('@/components/Notepad'), { ssr: false });
 
 interface PresenceUser {
   clientId: number;
@@ -23,12 +27,69 @@ export default function RoomPage() {
   const roomId = params.roomId as string;
 
   const [language, setLanguage] = useState<LanguageKey>('javascript');
-  const [presenceUsers, setPresenceUsers] = useState<PresenceUser[]>([]);
   const [copied, setCopied] = useState(false);
+  const [presenceUsers, setPresenceUsers] = useState<PresenceUser[]>([]);
 
-  const handlePresenceChange = (users: PresenceUser[]) => {
-    setPresenceUsers(users);
-  };
+  // Yjs connection state
+  const [ydoc, setYdoc] = useState<Y.Doc | null>(null);
+  const [provider, setProvider] = useState<WebsocketProvider | null>(null);
+  const [codeText, setCodeText] = useState<Y.Text | null>(null);
+  const [noteText, setNoteText] = useState<Y.Text | null>(null);
+  const [localUser, setLocalUser] = useState<{ name: string; color: string } | null>(null);
+
+  useEffect(() => {
+    // 1. Initialize shared Yjs document and fields
+    const doc = new Y.Doc();
+    const codemirrorField = doc.getText('codemirror');
+    const notepadField = doc.getText('notepad');
+
+    // 2. Generate local user presence attributes
+    const user = getRandomUser();
+    setLocalUser(user);
+
+    // 3. Connect to room over Websocket
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:1234';
+    console.log(`Connecting to room ${roomId} at ${wsUrl}`);
+    const wsProvider = new WebsocketProvider(wsUrl, roomId, doc);
+
+    // Set local awareness state
+    wsProvider.awareness.setLocalStateField('user', {
+      name: user.name,
+      color: user.color,
+    });
+
+    setYdoc(doc);
+    setProvider(wsProvider);
+    setCodeText(codemirrorField);
+    setNoteText(notepadField);
+
+    // 4. Bind awareness state changes to list collaborators
+    const handleAwarenessChange = () => {
+      const states = wsProvider.awareness.getStates();
+      const users: PresenceUser[] = [];
+      states.forEach((state: any, clientId: number) => {
+        if (state.user) {
+          users.push({
+            clientId,
+            name: state.user.name,
+            color: state.user.color,
+          });
+        }
+      });
+      setPresenceUsers(users);
+    };
+
+    wsProvider.awareness.on('change', handleAwarenessChange);
+    handleAwarenessChange();
+
+    // 5. Cleanup on unmount
+    return () => {
+      wsProvider.awareness.off('change', handleAwarenessChange);
+      wsProvider.disconnect();
+      wsProvider.destroy();
+      doc.destroy();
+    };
+  }, [roomId]);
 
   const handleShare = async () => {
     try {
@@ -45,7 +106,7 @@ export default function RoomPage() {
   return (
     <div className="flex flex-col min-h-screen bg-neutral-950 text-white font-sans overflow-hidden">
       {/* Header section */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-neutral-900 bg-neutral-950/80 backdrop-blur-md sticky top-0 z-50">
+      <header className="flex items-center justify-between px-6 py-4 border-b border-neutral-900 bg-neutral-950/80 backdrop-blur-md sticky top-0 z-50 select-none">
         <div className="flex items-center gap-4">
           <Button
             variant="ghost"
@@ -67,9 +128,9 @@ export default function RoomPage() {
           </div>
         </div>
 
-        {/* Action controls and awareness list */}
+        {/* Action controls */}
         <div className="flex items-center gap-6">
-          {/* Language selection dropdown */}
+          {/* Language Selector */}
           <div className="flex items-center gap-2">
             <span className="text-xs text-neutral-400 font-medium">Language:</span>
             <select
@@ -85,7 +146,7 @@ export default function RoomPage() {
             </select>
           </div>
 
-          {/* Share Room Link button */}
+          {/* Share Button */}
           <Button
             variant="outline"
             size="sm"
@@ -105,7 +166,7 @@ export default function RoomPage() {
             )}
           </Button>
 
-          {/* Connected collaborators list */}
+          {/* Connected Collaborators list */}
           <div className="flex items-center gap-3 border-l border-neutral-900 pl-6">
             <div className="flex -space-x-2 overflow-hidden">
               {presenceUsers.slice(0, 5).map((user) => (
@@ -127,7 +188,7 @@ export default function RoomPage() {
                 </div>
               )}
             </div>
-            <span className="text-xs font-semibold text-neutral-450 flex items-center gap-1.5 select-none">
+            <span className="text-xs font-semibold text-neutral-450 flex items-center gap-1.5">
               <Users size={14} className="text-teal-400" />
               <span>{presenceUsers.length} active</span>
             </span>
@@ -135,14 +196,35 @@ export default function RoomPage() {
         </div>
       </header>
 
-      {/* Editor workspace */}
-      <main className="flex flex-1 p-6 bg-neutral-950 overflow-hidden h-[calc(100vh-73px)]">
-        <Editor
-          roomId={roomId}
-          language={language}
-          onPresenceChange={handlePresenceChange}
-        />
-      </main>
+      {/* Editor & Notepad Split Layout */}
+      {ydoc && provider && codeText && noteText && localUser ? (
+        <main className="flex flex-col lg:flex-row gap-6 p-6 flex-1 h-[calc(100vh-73px)] overflow-y-auto lg:overflow-hidden bg-neutral-950">
+          {/* Code Editor (left, ~65% width on desktop) */}
+          <div className="w-full lg:w-[65%] h-[500px] lg:h-full flex flex-col shrink-0 lg:shrink">
+            <Editor
+              roomId={roomId}
+              language={language}
+              ytext={codeText}
+              provider={provider}
+              localUser={localUser}
+            />
+          </div>
+
+          {/* Notepad (right, ~35% width on desktop) */}
+          <div className="w-full lg:w-[35%] h-[300px] lg:h-full flex flex-col shrink-0 lg:shrink">
+            <Notepad ytext={noteText} />
+          </div>
+        </main>
+      ) : (
+        <div className="flex flex-1 items-center justify-center bg-neutral-950 text-neutral-400 h-[calc(100vh-73px)]">
+          <div className="flex flex-col items-center gap-2">
+            <span className="w-6 h-6 rounded-full border-2 border-teal-500 border-t-transparent animate-spin" />
+            <span className="text-xs font-semibold uppercase tracking-wider animate-pulse">
+              Initializing Collaborative Workspace...
+            </span>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

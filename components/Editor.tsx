@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { EditorView } from '@codemirror/view';
 import { oneDark } from '@codemirror/theme-one-dark';
@@ -8,101 +7,17 @@ import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { yCollab } from 'y-codemirror.next';
 import { Extension } from '@codemirror/state';
-import { getRandomUser } from '@/lib/user';
-import { languages, LanguageKey } from '@/lib/languages';
-
-interface PresenceUser {
-  clientId: number;
-  name: string;
-  color: string;
-}
+import { LanguageKey, languages } from '@/lib/languages';
 
 interface EditorProps {
   roomId: string;
   language: LanguageKey;
-  onPresenceChange?: (users: PresenceUser[]) => void;
+  ytext: Y.Text;
+  provider: WebsocketProvider;
+  localUser: { name: string; color: string };
 }
 
-export default function Editor({ roomId, language, onPresenceChange }: EditorProps) {
-  const [ydoc, setYdoc] = useState<Y.Doc | null>(null);
-  const [provider, setProvider] = useState<WebsocketProvider | null>(null);
-  const [ytext, setYtext] = useState<Y.Text | null>(null);
-  const [localUser, setLocalUser] = useState<{ name: string; color: string } | null>(null);
-
-  // Avoid re-triggering effects by keeping track of the callback in a ref
-  const onPresenceChangeRef = useRef(onPresenceChange);
-  useEffect(() => {
-    onPresenceChangeRef.current = onPresenceChange;
-  }, [onPresenceChange]);
-
-  useEffect(() => {
-    // 1. Initialize Yjs document and the shared text type
-    const doc = new Y.Doc();
-    const text = doc.getText('codemirror');
-
-    // 2. Generate local presence user details
-    const user = getRandomUser();
-    setLocalUser(user);
-
-    // 3. Connect to the Websocket server for real-time sync
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:1234';
-    console.log(`Connecting room: ${roomId} using server: ${wsUrl}`);
-    const wsProvider = new WebsocketProvider(wsUrl, roomId, doc);
-
-    // Set local presence fields on awareness state
-    wsProvider.awareness.setLocalStateField('user', {
-      name: user.name,
-      color: user.color,
-    });
-
-    setYdoc(doc);
-    setProvider(wsProvider);
-    setYtext(text);
-
-    // 4. Awareness change handler to notify container page of active collaborators
-    const handleAwarenessChange = () => {
-      const states = wsProvider.awareness.getStates();
-      const users: PresenceUser[] = [];
-      states.forEach((state: any, clientId: number) => {
-        if (state.user) {
-          users.push({
-            clientId,
-            name: state.user.name,
-            color: state.user.color,
-          });
-        }
-      });
-      if (onPresenceChangeRef.current) {
-        onPresenceChangeRef.current(users);
-      }
-    };
-
-    wsProvider.awareness.on('change', handleAwarenessChange);
-    // Initialize presence list
-    handleAwarenessChange();
-
-    // 5. Cleanup connections on component unmount
-    return () => {
-      wsProvider.awareness.off('change', handleAwarenessChange);
-      wsProvider.disconnect();
-      wsProvider.destroy();
-      doc.destroy();
-    };
-  }, [roomId]);
-
-  if (!ydoc || !provider || !ytext || !localUser) {
-    return (
-      <div className="flex flex-1 items-center justify-center bg-neutral-900 text-neutral-400">
-        <div className="flex flex-col items-center gap-2">
-          <span className="w-6 h-6 rounded-full border-2 border-teal-500 border-t-transparent animate-spin" />
-          <span className="text-xs font-semibold uppercase tracking-wider animate-pulse">
-            Connecting to Sync Server...
-          </span>
-        </div>
-      </div>
-    );
-  }
-
+export default function Editor({ roomId, language, ytext, provider, localUser }: EditorProps) {
   // Extensions list:
   // - Current selected language
   // - yCollab for real-time document synchronization and shared cursors
