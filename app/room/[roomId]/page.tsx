@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { ArrowLeft, Users, Code2 } from 'lucide-react';
+import { ArrowLeft, Users, Code2, Share2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LanguageKey, languages } from '@/lib/languages';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -24,9 +24,22 @@ export default function RoomPage() {
 
   const [language, setLanguage] = useState<LanguageKey>('javascript');
   const [presenceUsers, setPresenceUsers] = useState<PresenceUser[]>([]);
+  const [copied, setCopied] = useState(false);
 
   const handlePresenceChange = (users: PresenceUser[]) => {
     setPresenceUsers(users);
+  };
+
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => {
+        setCopied(false);
+      }, 1500);
+    } catch (err) {
+      console.error('Failed to copy text: ', err);
+    }
   };
 
   return (
@@ -71,6 +84,26 @@ export default function RoomPage() {
               ))}
             </select>
           </div>
+
+          {/* Share Room Link button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleShare}
+            className="h-8 gap-1.5 border-neutral-800 bg-neutral-900 text-neutral-300 hover:bg-neutral-800 hover:text-white rounded-lg cursor-pointer"
+          >
+            {copied ? (
+              <>
+                <Check size={14} className="text-emerald-500" />
+                <span className="text-emerald-500 font-semibold">Copied!</span>
+              </>
+            ) : (
+              <>
+                <Share2 size={14} />
+                <span>Share</span>
+              </>
+            )}
+          </Button>
 
           {/* Connected collaborators list */}
           <div className="flex items-center gap-3 border-l border-neutral-900 pl-6">
