@@ -30,7 +30,7 @@ export default function Home() {
         </div>
 
         {/* Title */}
-        <h1 className="text-5xl md:text-6xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-neutral-50 via-teal-100 to-emerald-400 mb-4 drop-shadow-sm">
+        <h1 className="text-7xl md:text-8xl font-anton tracking-wide text-[#D2E823] uppercase mb-4 drop-shadow-md">
           codesync
         </h1>
 
