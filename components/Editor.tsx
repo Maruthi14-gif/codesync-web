@@ -1,11 +1,12 @@
 'use client';
 
+import { useMemo } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { EditorView } from '@codemirror/view';
 import { oneDark } from '@codemirror/theme-one-dark';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
-import { yCollab } from 'y-codemirror.next';
+import { safeYCollab } from '@/lib/safeYCollab';
 import { Extension } from '@codemirror/state';
 import { LanguageKey, languages } from '@/lib/languages';
 
@@ -20,13 +21,13 @@ interface EditorProps {
 export default function Editor({ roomId, language, ytext, provider, localUser }: EditorProps) {
   // Extensions list:
   // - Current selected language
-  // - yCollab for real-time document synchronization and shared cursors
+  // - safeYCollab for real-time document synchronization and shared cursors (crash-proof)
   // - line wrapping to prevent horizontal text clipping
-  const extensions: Extension[] = [
+  const extensions = useMemo<Extension[]>(() => [
     languages[language]?.extension || languages.javascript.extension,
-    yCollab(ytext, provider.awareness),
+    safeYCollab(ytext, provider.awareness),
     EditorView.lineWrapping,
-  ];
+  ], [language, ytext, provider.awareness]);
 
   return (
     <div className="flex flex-1 flex-col h-full border border-neutral-850 rounded-xl overflow-hidden shadow-2xl bg-neutral-900">
@@ -46,6 +47,7 @@ export default function Editor({ roomId, language, ytext, provider, localUser }:
 
       {/* CodeMirror Editor container */}
       <CodeMirror
+        defaultValue={ytext.toString()}
         theme={oneDark}
         height="100%"
         className="flex-1 text-sm outline-none overflow-auto"
