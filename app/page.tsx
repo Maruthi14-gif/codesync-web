@@ -1,21 +1,28 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
-import { nanoid } from 'nanoid';
-import { Button } from '@/components/ui/button';
 import { useState } from 'react';
-import { Terminal } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 export default function Home() {
+  const [roomIdInput, setRoomIdInput] = useState('');
   const router = useRouter();
-  const [loading, setLoading] = useState(false);
 
-  const handleCreateRoom = () => {
-    setLoading(true);
-    const roomId = nanoid(10);
-    router.push(`/room/${roomId}`);
+  const handleJoin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = roomIdInput.trim();
+    if (trimmed) {
+      router.push(`/room/${trimmed}`);
+    }
   };
-
   return (
     <div className="relative flex flex-col flex-1 items-center justify-center min-h-screen bg-neutral-950 text-white font-sans overflow-hidden selection:bg-teal-500/30 selection:text-teal-200">
       {/* Background gradients for premium styling */}
@@ -26,7 +33,7 @@ export default function Home() {
       <main className="relative z-10 flex flex-col items-center justify-center max-w-xl px-6 text-center">
         {/* Decorative Badge */}
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-teal-500/30 bg-teal-500/5 text-teal-400 text-xs font-semibold uppercase tracking-wider mb-6 animate-pulse">
-          <Terminal size={14} className="text-teal-400" /> Real-time Collaboration
+          <span className="font-mono text-teal-400">&gt;_</span> Real-time Collaboration
         </div>
 
         {/* Title */}
@@ -39,15 +46,52 @@ export default function Home() {
           Sync files, share cursor presence, and code collaboratively in real-time with built-in AI autocomplete.
         </p>
 
-        {/* Button */}
-        <Button
-          onClick={handleCreateRoom}
-          disabled={loading}
-          size="lg"
-          className="relative px-8 py-6 rounded-xl font-bold bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-black shadow-lg shadow-teal-500/25 transition-all duration-300 hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer"
-        >
-          {loading ? 'Creating...' : 'Create a Room'}
-        </Button>
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 items-center justify-center w-full max-w-md mt-4">
+          <Link
+            href="/create"
+            className="w-full sm:flex-1 relative inline-flex items-center justify-center px-6 py-4 rounded-xl font-bold bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-black shadow-lg shadow-teal-500/25 transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer text-center"
+          >
+            Create a Room
+          </Link>
+
+          <Dialog>
+            <DialogTrigger className="w-full sm:flex-1 relative inline-flex items-center justify-center px-6 py-4 rounded-xl font-bold border border-neutral-800 bg-neutral-900/50 hover:bg-neutral-850 text-white shadow-lg transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer text-center">
+              Join a Room
+            </DialogTrigger>
+            <DialogContent className="border border-neutral-850 bg-neutral-950 p-6 rounded-2xl max-w-sm w-full shadow-2xl">
+              <DialogHeader>
+                <DialogTitle className="text-xl font-anton uppercase tracking-wider text-white">
+                  Join Workspace
+                </DialogTitle>
+                <DialogDescription className="text-neutral-450 mt-1 text-xs">
+                  Enter a Room ID to collaborate with your team in real-time.
+                </DialogDescription>
+              </DialogHeader>
+
+              <form onSubmit={handleJoin} className="mt-4 flex flex-col gap-4">
+                <input
+                  type="text"
+                  placeholder="e.g., k9L2P5v8"
+                  value={roomIdInput}
+                  onChange={(e) => setRoomIdInput(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-neutral-850 bg-neutral-900 text-white placeholder-neutral-500 focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/50 transition-all font-mono text-sm"
+                  required
+                  autoFocus
+                />
+
+                <div className="flex justify-end gap-3 mt-2">
+                  <button
+                    type="submit"
+                    className="px-5 py-2.5 rounded-lg font-bold bg-gradient-to-r from-teal-500 to-emerald-500 hover:from-teal-400 hover:to-emerald-400 text-black shadow-lg shadow-teal-500/10 transition-all duration-200 cursor-pointer text-xs uppercase tracking-wider"
+                  >
+                    Join Room
+                  </button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
       </main>
     </div>
   );
