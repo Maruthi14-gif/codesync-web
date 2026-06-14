@@ -1,36 +1,75 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# codesync-web
 
-## Getting Started
+> A beautiful, premium real-time collaborative code editor and scratchpad.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Tech Stack
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Technology | Purpose |
+| :--- | :--- |
+| **Next.js (App Router, TS)** | Modern frontend framework with server-side rendering support |
+| **Tailwind CSS + shadcn/ui** | Responsive styling and curated design components |
+| **CodeMirror 6** | Extensible text editor for code syntax and highlighting |
+| **@uiw/react-codemirror** | React wrapper component for CodeMirror 6 |
+| **Yjs** | CRDT library managing shared document data |
+| **y-websocket** | WebSocket provider binding Yjs to the sync server |
+| **Lucide React** | Sleek icon pack |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Local Setup
 
-## Learn More
+1. **Install Dependencies:**
+   ```bash
+   npm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. **Configure Environment Variables:**
+   Create `.env.local` based on the example:
+   ```bash
+   cp .env.example .env.local
+   ```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+3. **Start Development Server:**
+   ```bash
+   npm run dev
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+4. **Build Production Bundle:**
+   ```bash
+   npm run build
+   ```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Environment Variables
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+| Variable | Description | Example | Required |
+| :--- | :--- | :--- | :--- |
+| `NEXT_PUBLIC_WS_URL` | WebSocket URL of the collaborative sync server. | `ws://localhost:1234` | Yes |
+
+---
+
+## How It Works
+
+### Yjs CRDT Sync
+The application uses Yjs, a high-performance Conflict-free Replicated Data Type (CRDT) library, to enable concurrent document edits without conflicts. Edits made locally inside CodeMirror are translated to Yjs updates and sent to other clients over WebSockets. The system merges changes automatically, ensuring eventual consistency.
+
+### Awareness-based Presence
+Collaborator cursors, selection highlights, and user names are powered by Yjs's **Awareness** protocol. Unlike document edits, awareness data is temporary, state-driven, and is not stored in the database. When users move their cursors or disconnect, their presence updates are broadcasted to all active peers, drawing live remote carets.
+
+### Multi-surface Document Structure
+A single `Y.Doc` serves as the shared data model for each workspace room, holding two independent, top-level `Y.Text` surfaces:
+- **Code Editor:** Bound to the CodeMirror 6 text editor.
+- **Scratchpad:** Bound to a regular HTML `textarea` element for brainstorms and scratch notes using a custom binding wrapper.
+
+Since both surfaces belong to the same document, they sync over the same connection and remain separate independent surfaces.
+
+---
+
+## Demo & Live URL
+
+- **Live URL:** *[Insert Live URL Here]*
+- **Demo Preview:**  
+  ![Demo GIF Placeholder](https://via.placeholder.com/800x450.gif?text=Demo+GIF+Placeholder)
