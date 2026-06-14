@@ -59,11 +59,11 @@ export default function Home() {
                 <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-white leading-[1.1] max-w-lg">
                   Write code. <br />
                   <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-300">
-                    Sync in real-time.
+                    Think as one.
                   </span>
                 </h2>
                 <p className="text-sm sm:text-base text-neutral-400 font-medium max-w-md leading-relaxed mt-2">
-                  An ultra-fast, conflict-free collaborative coding environment. Spin up a shared room instantly to write code and organize project notes with your team.
+                  A shared room where your whole team codes as one. Live cursors, instant sync, zero conflicts.
                 </p>
               </div>
             </div>
