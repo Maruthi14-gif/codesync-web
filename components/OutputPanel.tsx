@@ -74,7 +74,11 @@ export default function OutputPanel({ outputData, onClose }: OutputPanelProps) {
 
             {/* Standard Error (Stderr) Section */}
             {outputData.stderr && (
-              <pre className="whitespace-pre-wrap break-all text-rose-400 bg-rose-950/15 border border-rose-950/30 p-3 rounded-lg font-mono">
+              <pre className={`whitespace-pre-wrap break-all p-3 rounded-lg font-mono border ${
+                outputData.stderr.includes('self-hosted/local mode')
+                  ? 'text-amber-300 bg-amber-950/15 border-amber-900/30'
+                  : 'text-rose-400 bg-rose-950/15 border-rose-950/30'
+              }`}>
                 {outputData.stderr}
               </pre>
             )}

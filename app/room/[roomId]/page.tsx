@@ -194,7 +194,7 @@ export default function RoomPage() {
       if (outputText) {
         const errOutput = {
           stdout: '',
-          stderr: err.message || 'Unknown network error.',
+          stderr: 'Code execution runs in self-hosted/local mode. Clone the repo and run the Piston engine locally to try it — see the README.',
           runBy: localUser?.name || 'Anonymous',
           language: languages[language]?.name || language,
         };
