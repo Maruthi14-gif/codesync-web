@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import dynamic from 'next/dynamic';
-import { ArrowLeft, Users, Code2, Share2, Check } from 'lucide-react';
+import { ArrowLeft, Users, Code2, Share2, Check, Play, Terminal } from 'lucide-react';
 import * as Y from 'yjs';
 import { WebsocketProvider } from 'y-websocket';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,7 @@ import { getRandomUser } from '@/lib/user';
 // Dynamically import client-only Yjs-bound components
 const Editor = dynamic(() => import('@/components/Editor'), { ssr: false });
 const Notepad = dynamic(() => import('@/components/Notepad'), { ssr: false });
+const OutputPanel = dynamic(() => import('@/components/OutputPanel'), { ssr: false });
 
 interface PresenceUser {
   clientId: number;
@@ -36,13 +37,19 @@ export default function RoomPage() {
   const [provider, setProvider] = useState<WebsocketProvider | null>(null);
   const [codeText, setCodeText] = useState<Y.Text | null>(null);
   const [noteText, setNoteText] = useState<Y.Text | null>(null);
+  const [outputText, setOutputText] = useState<Y.Text | null>(null);
   const [localUser, setLocalUser] = useState<{ name: string; color: string } | null>(null);
+
+  const [outputData, setOutputData] = useState<{ stdout: string; stderr: string; runBy: string; language: string } | null>(null);
+  const [isRunning, setIsRunning] = useState(false);
+  const [isOutputOpen, setIsOutputOpen] = useState(false);
 
   useEffect(() => {
     // 1. Initialize shared Yjs document and fields
     const doc = new Y.Doc();
     const codemirrorField = doc.getText('codemirror');
     const notepadField = doc.getText('notepad');
+    const outputField = doc.getText('output');
 
     // 2. Generate local user presence attributes
     const user = getRandomUser();
@@ -81,6 +88,7 @@ export default function RoomPage() {
     setProvider(wsProvider);
     setCodeText(codemirrorField);
     setNoteText(notepadField);
+    setOutputText(outputField);
 
     // 4. Bind awareness state changes to list collaborators
     const handleAwarenessChange = () => {
@@ -111,6 +119,94 @@ export default function RoomPage() {
       doc.destroy();
     };
   }, [roomId]);
+
+  // Listen to remote changes on output Y.Text
+  useEffect(() => {
+    if (!outputText) return;
+
+    const handleOutputChange = () => {
+      try {
+        const textVal = outputText.toString();
+        if (textVal) {
+          setOutputData(JSON.parse(textVal));
+          // Auto-expand panel when new output arrives
+          setIsOutputOpen(true);
+        } else {
+          setOutputData(null);
+        }
+      } catch (err) {
+        console.error('Failed to parse output JSON:', err);
+      }
+    };
+
+    outputText.observe(handleOutputChange);
+    handleOutputChange(); // Run initially
+
+    return () => {
+      outputText.unobserve(handleOutputChange);
+    };
+  }, [outputText]);
+
+  const handleRun = async () => {
+    if (!codeText || isRunning) return;
+
+    setIsRunning(true);
+    setIsOutputOpen(true); // Open the output panel immediately to show a loading/running feedback
+    
+    try {
+      const code = codeText.toString();
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:1234';
+      const httpUrl = wsUrl.replace(/^ws/, 'http');
+
+      const response = await fetch(`${httpUrl}/execute`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          language,
+          code,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Execution request failed: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      
+      // Update Yjs text output
+      if (outputText) {
+        const newOutput = {
+          stdout: result.stdout || '',
+          stderr: result.stderr || '',
+          runBy: localUser?.name || 'Anonymous',
+          language: languages[language]?.name || language,
+        };
+        
+        outputText.doc?.transact(() => {
+          outputText.delete(0, outputText.length);
+          outputText.insert(0, JSON.stringify(newOutput));
+        });
+      }
+    } catch (err: any) {
+      console.error('Error during execution:', err);
+      if (outputText) {
+        const errOutput = {
+          stdout: '',
+          stderr: err.message || 'Unknown network error.',
+          runBy: localUser?.name || 'Anonymous',
+          language: languages[language]?.name || language,
+        };
+        outputText.doc?.transact(() => {
+          outputText.delete(0, outputText.length);
+          outputText.insert(0, JSON.stringify(errOutput));
+        });
+      }
+    } finally {
+      setIsRunning(false);
+    }
+  };
 
   const handleShare = async () => {
     try {
@@ -175,7 +271,7 @@ export default function RoomPage() {
               variant="outline"
               size="sm"
               onClick={handleShare}
-              className="h-8 gap-1.5 border-neutral-800 bg-neutral-900 text-neutral-300 hover:bg-neutral-800 hover:text-white rounded-lg cursor-pointer"
+              className="h-8 gap-1.5 border-neutral-880 bg-neutral-900 text-neutral-300 hover:bg-neutral-800 hover:text-white rounded-lg cursor-pointer"
             >
               {copied ? (
                 <>
@@ -186,6 +282,40 @@ export default function RoomPage() {
                 <>
                   <Share2 size={14} />
                   <span>Share</span>
+                </>
+              )}
+            </Button>
+
+            {/* Console Toggle Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsOutputOpen(!isOutputOpen)}
+              className={`h-8 gap-1.5 border-neutral-800 rounded-lg cursor-pointer px-3 ${
+                isOutputOpen ? 'bg-neutral-800 text-white border-neutral-700' : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-855 hover:text-white'
+              }`}
+            >
+              <Terminal size={14} />
+              <span>Console</span>
+            </Button>
+
+            {/* Run Button */}
+            <Button
+              onClick={handleRun}
+              disabled={isRunning || language === 'html'}
+              className="h-8 gap-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold rounded-lg cursor-pointer px-4 disabled:opacity-55 disabled:bg-neutral-800 disabled:text-neutral-500 disabled:border disabled:border-neutral-850"
+            >
+              {isRunning ? (
+                <>
+                  <span className="w-3.5 h-3.5 rounded-full border-2 border-black border-t-transparent animate-spin" />
+                  <span>Running...</span>
+                </>
+              ) : language === 'html' ? (
+                <span>HTML (No Run)</span>
+              ) : (
+                <>
+                  <Play size={12} fill="black" />
+                  <span>Run</span>
                 </>
               )}
             </Button>
@@ -248,15 +378,27 @@ export default function RoomPage() {
       {/* Editor & Notepad Split Layout */}
       {ydoc && provider && codeText && noteText && localUser ? (
         <main className="flex flex-col lg:flex-row gap-6 p-6 flex-1 h-[calc(100vh-73px)] overflow-y-auto lg:overflow-hidden bg-neutral-950">
-          {/* Code Editor (left, ~65% width on desktop) */}
-          <div className="w-full lg:w-[65%] h-[500px] lg:h-full flex flex-col shrink-0 lg:shrink">
-            <Editor
-              roomId={roomId}
-              language={language}
-              ytext={codeText}
-              provider={provider}
-              localUser={localUser}
-            />
+          {/* Code Editor & Collapsible Output (left, ~65% width on desktop) */}
+          <div className="w-full lg:w-[65%] h-[600px] lg:h-full flex flex-col gap-6 shrink-0 lg:shrink min-h-0">
+            <div className="flex-1 min-h-0">
+              <Editor
+                roomId={roomId}
+                language={language}
+                ytext={codeText}
+                provider={provider}
+                localUser={localUser}
+              />
+            </div>
+
+            {/* Collapsible Output Panel */}
+            {isOutputOpen && (
+              <div className="h-[220px] lg:h-[250px] shrink-0">
+                <OutputPanel
+                  outputData={outputData}
+                  onClose={() => setIsOutputOpen(false)}
+                />
+              </div>
+            )}
           </div>
 
           {/* Notepad (right, ~35% width on desktop) */}
