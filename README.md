@@ -1,75 +1,88 @@
-# codesync-web
+# CodeSync — Web Client
 
-> A beautiful, premium real-time collaborative code editor and scratchpad.
+> A shared room where your whole team codes as one. Live cursors, instant sync, zero conflicts.
+
+CodeSync is a real-time collaborative code editor. Spin up a room, share the link, and edit the same file together — every keystroke, cursor, and selection synced live. Includes a shared notepad for rough work and sandboxed multi-language code execution.
+
+**Live demo:** https://codesync-web-lake.vercel.app
+
+<!-- TODO: add demo GIF here -->
+![CodeSync demo](./demo.gif)
+
+---
+
+## Features
+
+- **Real-time collaborative editing** — multiple developers edit the same file simultaneously, powered by Yjs CRDTs (conflict-free merges, no locking).
+- **Live cursors & presence** — see every collaborator's cursor, selection, name, and color in real time via Yjs awareness.
+- **Multi-language syntax highlighting** — JavaScript/TypeScript, Python, C++, and HTML, with live language switching.
+- **Shared notepad** — a second collaborative surface on the same document for notes and pseudocode, independent of the code editor.
+- **Code execution** — run code and see shared output in the room (requires a self-hosted engine; see note below).
+- **Room passcodes** — optional server-enforced access control per room.
+- **Connection status & responsive design** — live connection indicator, works down to mobile widths.
 
 ---
 
 ## Tech Stack
 
-| Technology | Purpose |
-| :--- | :--- |
-| **Next.js (App Router, TS)** | Modern frontend framework with server-side rendering support |
-| **Tailwind CSS + shadcn/ui** | Responsive styling and curated design components |
-| **CodeMirror 6** | Extensible text editor for code syntax and highlighting |
-| **@uiw/react-codemirror** | React wrapper component for CodeMirror 6 |
-| **Yjs** | CRDT library managing shared document data |
-| **y-websocket** | WebSocket provider binding Yjs to the sync server |
-| **Lucide React** | Sleek icon pack |
-
----
-
-## Local Setup
-
-1. **Install Dependencies:**
-   ```bash
-   npm install
-   ```
-
-2. **Configure Environment Variables:**
-   Create `.env.local` based on the example:
-   ```bash
-   cp .env.example .env.local
-   ```
-
-3. **Start Development Server:**
-   ```bash
-   npm run dev
-   ```
-
-4. **Build Production Bundle:**
-   ```bash
-   npm run build
-   ```
-
----
-
-## Environment Variables
-
-| Variable | Description | Example | Required |
-| :--- | :--- | :--- | :--- |
-| `NEXT_PUBLIC_WS_URL` | WebSocket URL of the collaborative sync server. | `ws://localhost:1234` | Yes |
+| Layer | Technology |
+|---|---|
+| Framework | Next.js (App Router), React, TypeScript |
+| Editor | CodeMirror 6 (`@uiw/react-codemirror`) |
+| Real-time sync | Yjs (CRDT) + `y-websocket` + `y-codemirror.next` |
+| Styling | Tailwind CSS, shadcn/ui |
+| Room IDs | nanoid |
+| Hosting | Vercel |
 
 ---
 
 ## How It Works
 
-### Yjs CRDT Sync
-The application uses Yjs, a high-performance Conflict-free Replicated Data Type (CRDT) library, to enable concurrent document edits without conflicts. Edits made locally inside CodeMirror are translated to Yjs updates and sent to other clients over WebSockets. The system merges changes automatically, ensuring eventual consistency.
+CodeSync uses **Yjs**, a CRDT (Conflict-free Replicated Data Type) library. Each character has a unique, ordered identity, so concurrent edits from different users merge deterministically — no conflicts, no locking, no "who wins" decisions.
 
-### Awareness-based Presence
-Collaborator cursors, selection highlights, and user names are powered by Yjs's **Awareness** protocol. Unlike document edits, awareness data is temporary, state-driven, and is not stored in the database. When users move their cursors or disconnect, their presence updates are broadcasted to all active peers, drawing live remote carets.
+- **Document sync** travels over a WebSocket connection to the backend server, which relays binary update deltas between clients and persists the document.
+- **Presence** (cursors, names, colors) rides on Yjs *awareness* — a separate ephemeral channel that isn't saved with the document.
+- **Multiple surfaces** — the code editor and the notepad are two independent named texts (`getText('codemirror')` and `getText('notepad')`) on a single shared Yjs document, sharing one WebSocket connection.
+- **Shared execution output** is written to a third shared field (`getText('output')`), so when one user runs code, the result appears for everyone in the room.
 
-### Multi-surface Document Structure
-A single `Y.Doc` serves as the shared data model for each workspace room, holding two independent, top-level `Y.Text` surfaces:
-- **Code Editor:** Bound to the CodeMirror 6 text editor.
-- **Scratchpad:** Bound to a regular HTML `textarea` element for brainstorms and scratch notes using a custom binding wrapper.
-
-Since both surfaces belong to the same document, they sync over the same connection and remain separate independent surfaces.
+CRDTs guarantee the document *converges* to the same state everywhere — they do not guarantee the merged code is semantically correct, which is the natural behavior of any collaborative editor.
 
 ---
 
-## Demo & Live URL
+## Local Setup
 
-- **Live URL:** *[Insert Live URL Here]*
-- **Demo Preview:**  
-  ![Demo GIF Placeholder](https://via.placeholder.com/800x450.gif?text=Demo+GIF+Placeholder)
+```bash
+git clone https://github.com/Maruthi14-gif/codesync-web.git
+cd codesync-web
+npm install
+```
+
+Create `.env.local`:
+
+```
+NEXT_PUBLIC_WS_URL=ws://localhost:1234
+```
+
+Run the dev server:
+
+```bash
+npm run dev
+```
+
+Open http://localhost:3000. You'll also need the backend running — see [codesync-server](https://github.com/Maruthi14-gif/codesync-server).
+
+---
+
+## A Note on Code Execution
+
+Code execution is powered by a **self-hosted [Piston](https://github.com/engineer-man/piston) engine** running in Docker, which sandboxes untrusted code using Isolate (Linux namespaces, cgroups, privileged operations).
+
+Because Piston's sandboxing requires a writable filesystem and privileged container operations, it **cannot run on managed hosting platforms** (like Railway/Vercel) that enforce read-only, unprivileged containers. The deployed demo therefore runs **collaboration only** — when you click Run on the live site, you'll see a friendly notice.
+
+To use code execution, run Piston locally (see the [codesync-server README](https://github.com/Maruthi14-gif/codesync-server)) and the feature works fully — multi-language compile and run, with output shared live across the room.
+
+---
+
+## Related
+
+- Backend: [codesync-server](https://github.com/Maruthi14-gif/codesync-server)
