@@ -235,10 +235,10 @@ export default function RoomPage() {
               <ArrowLeft size={18} />
             </Button>
             <div className="flex items-center gap-2">
-              <h1 className="text-xl font-anton tracking-wide uppercase text-white flex items-center gap-2">
-                <Code2 className="text-[#D2E823]" size={22} />
+              <h1 className="text-xl font-anton tracking-wide uppercase text-[#F5F0E1] flex items-center gap-2">
+                <Code2 className="text-[#10b981]" size={22} />
                 <span>code</span>
-                <span className="text-[#D2E823]">sync</span>
+                <span className="text-[#10b981]">sync</span>
               </h1>
               <span className="text-xs px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900 text-neutral-450 ml-2 font-mono">
                 #{roomId}

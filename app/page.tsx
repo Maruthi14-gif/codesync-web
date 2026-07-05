@@ -47,7 +47,7 @@ export default function Home() {
         {/* Top Header/Logo */}
         <div className="flex items-center gap-2 justify-center md:justify-start w-full">
           <Code2 className="text-[#10b981]" size={28} />
-          <h1 className="text-xl font-anton tracking-wide uppercase text-white flex items-center gap-1">
+          <h1 className="text-xl font-anton tracking-wide uppercase text-[#F5F0E1] flex items-center gap-1">
             <span>code</span>
             <span className="text-[#10b981]">sync</span>
           </h1>
@@ -71,13 +71,11 @@ export default function Home() {
                 <span>Live Collaboration</span>
               </div>
 
-              {/* Pitch */}
+              {/* Pitch with Anton display font settled on the Cream treatment */}
               <div className="flex flex-col gap-3">
-                <h2 className="text-3xl sm:text-5xl font-bold tracking-tight text-white leading-[1.1] max-w-lg">
+                <h2 className="text-4xl sm:text-6xl font-anton uppercase tracking-[-0.03em] leading-[0.95] max-w-lg text-[#F5F0E1]">
                   Write code. <br />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-emerald-300 to-teal-300">
-                    Think as one.
-                  </span>
+                  <span className="text-[#F5F0E1]/80">Think as one.</span>
                 </h2>
                 <p className="text-sm sm:text-base text-neutral-400 font-medium max-w-md leading-relaxed mt-2">
                   A shared room where your whole team codes as one. Live cursors, instant sync, zero conflicts.
@@ -116,7 +114,7 @@ export default function Home() {
                 } />
                 <DialogContent className="border border-white/10 bg-[#060a08] p-6 rounded-2xl max-w-sm w-full shadow-2xl text-[#ecf0ed]">
                   <DialogHeader>
-                    <DialogTitle className="text-xl font-anton uppercase tracking-wider text-white">
+                    <DialogTitle className="text-xl font-anton uppercase tracking-wider text-[#F5F0E1]">
                       Join Workspace
                     </DialogTitle>
                     <DialogDescription className="text-neutral-400 mt-1 text-xs">
@@ -149,65 +147,42 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Card 2: Yjs CRDT Sync (Spans 1 column) */}
-          <div className="bento-card-hover bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 sm:p-8 flex flex-col gap-4 relative overflow-hidden">
-            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 w-fit">
-              <Zap className="text-emerald-400 w-6 h-6" />
-            </div>
-            <div className="flex flex-col gap-2">
-              <h3 className="text-lg font-bold text-white">Conflict-Free Sync</h3>
-              <p className="text-sm text-neutral-400 leading-relaxed">
-                Powered by Yjs CRDTs. Every keystroke is merged automatically, ensuring all peers see the exact same document state with zero lag.
-              </p>
-            </div>
-          </div>
-
-          {/* Card 3: Cursor Presence */}
-          <div className="bento-card-hover bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 sm:p-8 flex flex-col gap-4 relative overflow-hidden">
-            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 w-fit">
-              <MousePointer className="text-emerald-400 w-6 h-6" />
-            </div>
-            <div className="flex flex-col gap-2">
-              <h3 className="text-lg font-bold text-white">Live Presence</h3>
-              <p className="text-sm text-neutral-400 leading-relaxed">
-                Track collaborator cursors, selection highlights, and active presence states in real-time, built completely on light-weight awareness protocols.
-              </p>
-            </div>
-          </div>
-
-          {/* Card 4: Shared Notepad */}
-          <div className="bento-card-hover bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 sm:p-8 flex flex-col gap-4 relative overflow-hidden">
-            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 w-fit">
-              <Layers className="text-emerald-400 w-6 h-6" />
-            </div>
-            <div className="flex flex-col gap-2">
-              <h3 className="text-lg font-bold text-white">Split Surfaces</h3>
-              <p className="text-sm text-neutral-400 leading-relaxed">
-                Edit code inside the main CodeMirror panel while planning project details in the notepad. Dual independent surfaces stored on a single Yjs doc.
-              </p>
-            </div>
-          </div>
-
-          {/* Card 5: Interactive Terminal Visualizer */}
-          <div className="bento-card-hover bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 flex flex-col justify-between gap-4 relative overflow-hidden">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/5 bg-black/20 w-fit text-[10px] font-mono text-neutral-400 uppercase select-none tracking-wider">
-              <Terminal size={12} className="text-emerald-400" />
-              <span>Console Logs</span>
-            </div>
-
-            <div className="font-mono text-[11px] text-neutral-400 bg-black/40 p-4 rounded-xl border border-white/5 flex-1 select-none flex flex-col justify-center gap-2">
-              <div>
-                <span className="text-emerald-500/95">$</span> npx codesync init
+          {/* New Animated Collaborative Editor Preview */}
+          <div className="relative overflow-hidden bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 sm:p-10 flex flex-col gap-4">
+            <div className="flex items-center gap-2 mb-2">
+              <div className="flex -space-x-2">
+                <span className="inline-block w-6 h-6 bg-emerald-500 rounded-full border border-white/10" />
+                <span className="inline-block w-6 h-6 bg-teal-500 rounded-full border border-white/10" />
               </div>
-              <div className="text-neutral-500 pl-2">Initializing collaborative document...</div>
-              <div className="text-neutral-500 pl-2">Connected to server: port 1234</div>
-              <div>
-                <span className="text-emerald-500/95">$</span> get-peers
-              </div>
-              <div className="text-neutral-300 pl-2">✓ Tim Berners-Lee connected</div>
-              <div className="text-neutral-300 pl-2">✓ Grace Hopper connected</div>
+              <span className="text-sm text-neutral-400">2 online</span>
+            </div>
+            <div className="relative font-mono text-sm text-neutral-300 bg-black/30 rounded-lg p-4 overflow-hidden">
+              <pre className="m-0 whitespace-pre"><code>
+<span className="block">function greet(name) {'{'}</span>
+<span className="block">  console.log(`Hello, ${'{'}name{'}'}`);</span>
+<span className="block">{'}'}</span>
+              </code></pre>
+              <span className="absolute top-3 left-4 w-2 h-5 bg-emerald-400 rounded-sm animate-cursor1" />
+              <span className="absolute top-5 left-8 w-2 h-5 bg-teal-400 rounded-sm animate-cursor2" />
             </div>
           </div>
+          {/* Animation Styles */}
+          <style jsx>{`
+            @keyframes cursor1 {
+              0%, 20% { top: 0.75rem; left: 1rem; }
+              40%, 60% { top: 1.25rem; left: 2rem; }
+              80%, 100% { top: 0.75rem; left: 1rem; }
+            }
+            @keyframes cursor2 {
+              0%, 20% { top: 1.25rem; left: 2rem; }
+              40%, 60% { top: 0.75rem; left: 1rem; }
+              80%, 100% { top: 1.25rem; left: 2rem; }
+            }
+            .animate-cursor1 { animation: cursor1 4s infinite; }
+            .animate-cursor2 { animation: cursor2 4s infinite; }
+          `}</style>
+
+
 
         </div>
 
