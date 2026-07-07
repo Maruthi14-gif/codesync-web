@@ -190,14 +190,71 @@
   border-right: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-.bento-card-hover {
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+/* Landing background: light packets race along the grid lines, glow orbs drift.
+   Per-beam top/left, duration and delay are set inline on the landing page. */
+@keyframes beam-x {
+  from { transform: translateX(-12rem); }
+  to { transform: translateX(calc(100vw + 4rem)); }
 }
 
-.bento-card-hover:hover {
-  transform: translateY(-4px);
-  background-color: rgba(255, 255, 255, 0.06);
-  border-color: rgba(255, 255, 255, 0.12);
+@keyframes beam-y {
+  from { transform: translateY(-12rem); }
+  to { transform: translateY(calc(100vh + 4rem)); }
+}
+
+.grid-beam-x,
+.grid-beam-y {
+  position: absolute;
+  background: linear-gradient(var(--beam-angle), transparent, rgba(16, 185, 129, 0.45) 55%, rgba(110, 231, 183, 0.9));
+  box-shadow: 0 0 12px rgba(16, 185, 129, 0.35);
+  animation: beam-x 10s linear infinite;
+  will-change: transform;
+}
+
+.grid-beam-x {
+  --beam-angle: 90deg;
+  left: 0;
+  width: 10rem;
+  height: 1px;
+  transform: translateX(-12rem);
+}
+
+.grid-beam-y {
+  --beam-angle: 180deg;
+  top: 0;
+  width: 1px;
+  height: 10rem;
+  transform: translateY(-12rem);
+  animation-name: beam-y;
+}
+
+.grid-beam-x.beam-teal,
+.grid-beam-y.beam-teal {
+  background: linear-gradient(var(--beam-angle), transparent, rgba(45, 212, 191, 0.45) 55%, rgba(153, 246, 228, 0.9));
+  box-shadow: 0 0 12px rgba(45, 212, 191, 0.35);
+}
+
+@keyframes orb-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(5rem, -3rem, 0) scale(1.12); }
+}
+
+.glow-orb {
+  position: absolute;
+  border-radius: 9999px;
+  animation: orb-drift 30s ease-in-out infinite;
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-beam-x,
+  .grid-beam-y {
+    animation: none;
+    opacity: 0;
+  }
+  .glow-orb {
+    animation: none;
+  }
 }
 
 
