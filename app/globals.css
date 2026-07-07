@@ -111,6 +111,85 @@
   transform: translateY(-1px);
 }
 
+/* Splash intro: hands reach in, meet as a handshake, wordmark rises */
+@keyframes splash-hand-l {
+  0% { transform: translate(-84px, 18px) rotate(90deg) scale(0.85); opacity: 0; }
+  38% { transform: translate(-24px, 9px) rotate(90deg) scale(1); opacity: 1; }
+  78% { transform: translate(-19px, 9px) rotate(90deg) scale(1); opacity: 1; }
+  100% { transform: translate(-14px, 9px) rotate(90deg) scale(0.8); opacity: 0; }
+}
+
+@keyframes splash-hand-r {
+  0% { transform: translate(84px, -18px) rotate(-90deg) scale(0.85); opacity: 0; }
+  38% { transform: translate(24px, -9px) rotate(-90deg) scale(1); opacity: 1; }
+  78% { transform: translate(19px, -9px) rotate(-90deg) scale(1); opacity: 1; }
+  100% { transform: translate(14px, -9px) rotate(-90deg) scale(0.8); opacity: 0; }
+}
+
+@keyframes splash-pop {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes splash-ring-out {
+  0% { transform: scale(0.4); opacity: 0.8; }
+  100% { transform: scale(2); opacity: 0; }
+}
+
+@keyframes splash-rise-in {
+  from { transform: translateY(12px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+.splash-hand-l {
+  opacity: 0;
+  animation: splash-hand-l 1.3s ease-in-out forwards;
+}
+
+.splash-hand-r {
+  opacity: 0;
+  animation: splash-hand-r 1.3s ease-in-out forwards;
+}
+
+.splash-shake {
+  opacity: 0;
+  animation: splash-pop 0.55s cubic-bezier(0.16, 1, 0.3, 1) 1.15s forwards;
+}
+
+.splash-ring {
+  opacity: 0;
+  animation: splash-ring-out 0.9s ease-out 1.2s forwards;
+}
+
+.splash-rise {
+  opacity: 0;
+  animation: splash-rise-in 0.6s ease-out forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .splash-hand-l,
+  .splash-hand-r,
+  .splash-ring {
+    animation: none;
+    opacity: 0;
+  }
+  .splash-shake,
+  .splash-rise {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* Blend CodeMirror (oneDark) into the app's green-black surfaces */
+.cm-theme .cm-editor,
+.cm-theme .cm-gutters {
+  background: transparent;
+}
+
+.cm-theme .cm-gutters {
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 .bento-card-hover {
   transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }

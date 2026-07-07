@@ -4,7 +4,8 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { nanoid } from 'nanoid';
 import { Button } from '@/components/ui/button';
-import { Terminal, Zap, MousePointer, Layers, Code2 } from 'lucide-react';
+import { Terminal, Zap, MousePointer, Code2, ExternalLink } from 'lucide-react';
+import SplashScreen from '@/components/SplashScreen';
 import {
   Dialog,
   DialogContent,
@@ -35,6 +36,7 @@ export default function Home() {
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen bg-[#060a08] text-[#ecf0ed] font-sans overflow-x-hidden py-12 selection:bg-emerald-500/30 selection:text-emerald-200">
+      <SplashScreen />
       {/* Background gradients for premium styling (Linear + Supabase style) */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,rgba(16,185,129,0.08),transparent_50%)] pointer-events-none" />
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_50%_-10%,rgba(16,185,129,0.06),transparent_60%)] pointer-events-none" />
@@ -147,8 +149,8 @@ export default function Home() {
             </div>
           </div>
 
-          {/* New Animated Collaborative Editor Preview */}
-          <div className="relative overflow-hidden bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 sm:p-10 flex flex-col gap-4">
+          {/* Collaborative Editor Preview */}
+          <div className="bento-card-hover relative overflow-hidden bg-white/[0.03] backdrop-blur-xl border border-white/[0.08] rounded-2xl p-6 sm:p-8 flex flex-col gap-4">
             <div className="flex items-center gap-2 mb-2">
               <div className="flex -space-x-2">
                 <span className="inline-block w-6 h-6 bg-emerald-500 rounded-full border border-white/10" />
@@ -156,35 +158,56 @@ export default function Home() {
               </div>
               <span className="text-sm text-neutral-400">2 online</span>
             </div>
-            <div className="relative font-mono text-sm text-neutral-300 bg-black/30 rounded-lg p-4 overflow-hidden">
+            <div className="font-mono text-[13px] leading-6 text-neutral-300 bg-black/30 rounded-lg p-4 overflow-hidden">
               <pre className="m-0 whitespace-pre"><code>
-<span className="block">function greet(name) {'{'}</span>
-<span className="block">  console.log(`Hello, ${'{'}name{'}'}`);</span>
+<span className="block">function greet(name) {'{'}<span className="relative inline-block w-0.5 h-4 -mb-0.5 ml-px bg-emerald-400 animate-pulse"><span className="absolute -top-4 right-0 text-[8px] font-sans font-bold leading-none px-1 py-0.5 rounded-sm bg-emerald-500 text-black whitespace-nowrap">Ada</span></span></span>
+<span className="block">  console.log(`Hi ${'{'}name{'}'}`);<span className="relative inline-block w-0.5 h-4 -mb-0.5 ml-px bg-teal-400 animate-pulse"><span className="absolute -top-4 right-0 text-[8px] font-sans font-bold leading-none px-1 py-0.5 rounded-sm bg-teal-500 text-black whitespace-nowrap">Alan</span></span></span>
 <span className="block">{'}'}</span>
               </code></pre>
-              <span className="absolute top-3 left-4 w-2 h-5 bg-emerald-400 rounded-sm animate-cursor1" />
-              <span className="absolute top-5 left-8 w-2 h-5 bg-teal-400 rounded-sm animate-cursor2" />
+            </div>
+            {/* Compact feature list fills the card's remaining height */}
+            <div className="mt-auto flex flex-col gap-3 pt-4 border-t border-white/[0.06]">
+              <div className="flex items-center gap-2.5 text-xs text-neutral-400">
+                <MousePointer size={13} className="text-emerald-400 shrink-0" />
+                <span>Live cursors &amp; presence</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs text-neutral-400">
+                <Zap size={13} className="text-emerald-400 shrink-0" />
+                <span>Zero-conflict CRDT sync</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs text-neutral-400">
+                <Terminal size={13} className="text-emerald-400 shrink-0" />
+                <span>Run code, share output live</span>
+              </div>
             </div>
           </div>
-          {/* Animation Styles */}
-          <style jsx>{`
-            @keyframes cursor1 {
-              0%, 20% { top: 0.75rem; left: 1rem; }
-              40%, 60% { top: 1.25rem; left: 2rem; }
-              80%, 100% { top: 0.75rem; left: 1rem; }
-            }
-            @keyframes cursor2 {
-              0%, 20% { top: 1.25rem; left: 2rem; }
-              40%, 60% { top: 0.75rem; left: 1rem; }
-              80%, 100% { top: 1.25rem; left: 2rem; }
-            }
-            .animate-cursor1 { animation: cursor1 4s infinite; }
-            .animate-cursor2 { animation: cursor2 4s infinite; }
-          `}</style>
-
-
 
         </div>
+
+        {/* Footer */}
+        <footer className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 pb-2 text-xs text-neutral-500">
+          <span>Built with Next.js, Yjs &amp; CodeMirror.</span>
+          <div className="flex items-center gap-4">
+            <a
+              href="https://github.com/Maruthi14-gif/codesync-web"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 hover:text-emerald-400 transition-colors"
+            >
+              <ExternalLink size={13} />
+              <span>Frontend</span>
+            </a>
+            <a
+              href="https://github.com/Maruthi14-gif/codesync-server"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 hover:text-emerald-400 transition-colors"
+            >
+              <ExternalLink size={13} />
+              <span>Backend</span>
+            </a>
+          </div>
+        </footer>
 
       </main>
     </div>
