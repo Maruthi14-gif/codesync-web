@@ -20,7 +20,7 @@ const anton = Anton({
 
 export const metadata: Metadata = {
   title: "codesync - Real-time Collaborative Code Editor",
-  description: "Sync files, share cursor presence, and code collaboratively in real-time with built-in AI autocomplete.",
+  description: "A shared room where your whole team codes as one. Live cursors, instant sync, shared notes, and code execution.",
 };
 
 export default function RootLayout({

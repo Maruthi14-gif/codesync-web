@@ -28,9 +28,9 @@ export default function OutputPanel({ outputData, onClose }: OutputPanelProps) {
   }, [outputData]);
 
   return (
-    <div className="flex flex-col h-full border border-neutral-850 rounded-xl overflow-hidden shadow-2xl bg-neutral-900/40 backdrop-blur-md">
+    <div className="flex flex-col h-full border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl bg-white/[0.03] backdrop-blur-md">
       {/* Console Header (Glass Chrome) */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-neutral-850 bg-neutral-950/70 text-xs text-neutral-400 font-sans select-none">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/[0.08] bg-black/40 text-xs text-neutral-400 font-sans select-none">
         <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-neutral-300">
           <Terminal size={14} className="text-emerald-400" />
           <span>Console Output</span>
@@ -46,7 +46,7 @@ export default function OutputPanel({ outputData, onClose }: OutputPanelProps) {
             variant="ghost"
             size="icon"
             onClick={onClose}
-            className="w-5 h-5 text-neutral-400 hover:text-white hover:bg-neutral-850 rounded-md cursor-pointer flex items-center justify-center"
+            className="w-5 h-5 text-neutral-400 hover:text-white hover:bg-white/10 rounded-md cursor-pointer flex items-center justify-center"
           >
             <X size={14} />
           </Button>
@@ -56,7 +56,7 @@ export default function OutputPanel({ outputData, onClose }: OutputPanelProps) {
       {/* Terminal Output Display */}
       <div 
         ref={scrollContainerRef}
-        className="flex-1 w-full p-4 bg-neutral-950/95 font-mono text-xs overflow-auto selection:bg-emerald-500/20 selection:text-emerald-200 leading-relaxed scrollbar-thin scrollbar-thumb-neutral-800"
+        className="flex-1 w-full p-4 bg-black/50 font-mono text-xs overflow-auto selection:bg-emerald-500/20 selection:text-emerald-200 leading-relaxed"
       >
         {!outputData ? (
           <div className="flex flex-col items-center justify-center h-full text-neutral-500 gap-2 select-none">

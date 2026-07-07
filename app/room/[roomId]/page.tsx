@@ -221,9 +221,9 @@ export default function RoomPage() {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-neutral-950 text-white font-sans overflow-hidden">
+    <div className="flex flex-col h-dvh bg-[#060a08] text-[#ecf0ed] font-sans overflow-hidden">
       {/* Header section */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 sm:px-6 py-4 border-b border-neutral-900 bg-neutral-950/80 backdrop-blur-md sticky top-0 z-50 select-none">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 px-4 sm:px-6 py-3 border-b border-white/[0.08] bg-[#060a08]/80 backdrop-blur-md z-50 select-none shrink-0">
         <div className="flex items-center justify-between md:justify-start gap-4 w-full md:w-auto">
           <div className="flex items-center gap-2">
             <Button
@@ -240,7 +240,7 @@ export default function RoomPage() {
                 <span>code</span>
                 <span className="text-[#10b981]">sync</span>
               </h1>
-              <span className="text-xs px-2 py-0.5 rounded border border-neutral-800 bg-neutral-900 text-neutral-450 ml-2 font-mono">
+              <span className="text-xs px-2 py-0.5 rounded-md border border-white/[0.08] bg-white/[0.03] text-neutral-400 ml-2 font-mono">
                 #{roomId}
               </span>
             </div>
@@ -256,7 +256,7 @@ export default function RoomPage() {
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value as LanguageKey)}
-                className="text-sm bg-neutral-900 border border-neutral-800 text-neutral-250 rounded-lg px-3 py-1.5 outline-none cursor-pointer focus:border-teal-500/50"
+                className="text-sm bg-white/[0.03] border border-white/10 text-neutral-200 rounded-lg px-3 py-1.5 outline-none cursor-pointer transition-colors hover:bg-white/[0.06] focus:border-emerald-500/50 [&>option]:bg-[#0a120d] [&>option]:text-neutral-200"
               >
                 {Object.entries(languages).map(([key, config]) => (
                   <option key={key} value={key}>
@@ -271,7 +271,7 @@ export default function RoomPage() {
               variant="outline"
               size="sm"
               onClick={handleShare}
-              className="h-8 gap-1.5 border-neutral-880 bg-neutral-900 text-neutral-300 hover:bg-neutral-800 hover:text-white rounded-lg cursor-pointer"
+              className="h-8 gap-1.5 border-white/10 bg-white/[0.03] text-neutral-300 hover:bg-white/[0.08] hover:text-white rounded-lg cursor-pointer"
             >
               {copied ? (
                 <>
@@ -291,8 +291,8 @@ export default function RoomPage() {
               variant="outline"
               size="sm"
               onClick={() => setIsOutputOpen(!isOutputOpen)}
-              className={`h-8 gap-1.5 border-neutral-800 rounded-lg cursor-pointer px-3 ${
-                isOutputOpen ? 'bg-neutral-800 text-white border-neutral-700' : 'bg-neutral-900 text-neutral-400 hover:bg-neutral-855 hover:text-white'
+              className={`h-8 gap-1.5 border-white/10 rounded-lg cursor-pointer px-3 ${
+                isOutputOpen ? 'bg-white/10 text-white border-white/20' : 'bg-white/[0.03] text-neutral-400 hover:bg-white/[0.08] hover:text-white'
               }`}
             >
               <Terminal size={14} />
@@ -303,7 +303,7 @@ export default function RoomPage() {
             <Button
               onClick={handleRun}
               disabled={isRunning || language === 'html'}
-              className="h-8 gap-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold rounded-lg cursor-pointer px-4 disabled:opacity-55 disabled:bg-neutral-800 disabled:text-neutral-500 disabled:border disabled:border-neutral-850"
+              className="h-8 gap-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold rounded-lg cursor-pointer px-4 disabled:opacity-55 disabled:bg-neutral-800 disabled:text-neutral-500 disabled:border disabled:border-white/10"
             >
               {isRunning ? (
                 <>
@@ -323,7 +323,7 @@ export default function RoomPage() {
 
           <div className="flex items-center gap-4 flex-wrap">
             {/* Connection Status Indicator */}
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-900 border border-neutral-850 text-[10px] font-bold tracking-wider uppercase">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] text-[10px] font-bold tracking-wider uppercase">
               <span className="relative flex h-2 w-2">
                 {connectionStatus !== 'disconnected' && (
                   <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${
@@ -345,12 +345,13 @@ export default function RoomPage() {
             </div>
 
             {/* Connected Collaborators list */}
-            <div className="flex items-center gap-3 border-l border-neutral-900 pl-4 md:pl-6">
+            <div className="flex items-center gap-3 border-l border-white/[0.08] pl-4 md:pl-6">
               <div className="flex -space-x-2 overflow-hidden">
                 {presenceUsers.slice(0, 5).map((user) => (
                   <Avatar
                     key={user.clientId}
-                    className="inline-block border-2 border-neutral-950 w-7 h-7"
+                    title={user.name}
+                    className="inline-block border-2 border-[#060a08] w-7 h-7"
                   >
                     <AvatarFallback
                       style={{ backgroundColor: user.color }}
@@ -361,12 +362,12 @@ export default function RoomPage() {
                   </Avatar>
                 ))}
                 {presenceUsers.length > 5 && (
-                  <div className="flex items-center justify-center w-7 h-7 rounded-full bg-neutral-850 text-[9px] font-bold text-neutral-450 border-2 border-neutral-950">
+                  <div className="flex items-center justify-center w-7 h-7 rounded-full bg-neutral-800 text-[9px] font-bold text-neutral-400 border-2 border-[#060a08]">
                     +{presenceUsers.length - 5}
                   </div>
                 )}
               </div>
-              <span className="text-xs font-semibold text-neutral-450 flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-neutral-400 flex items-center gap-1.5">
                 <Users size={14} className="text-teal-400" />
                 <span>{presenceUsers.length} active</span>
               </span>
@@ -377,9 +378,9 @@ export default function RoomPage() {
 
       {/* Editor & Notepad Split Layout */}
       {ydoc && provider && codeText && noteText && localUser ? (
-        <main className="flex flex-col lg:flex-row gap-6 p-6 flex-1 h-[calc(100vh-73px)] overflow-y-auto lg:overflow-hidden bg-neutral-950">
+        <main className="flex flex-col lg:flex-row gap-4 p-4 flex-1 min-h-0 overflow-y-auto lg:overflow-hidden">
           {/* Code Editor & Collapsible Output (left, ~65% width on desktop) */}
-          <div className="w-full lg:w-[65%] h-[600px] lg:h-full flex flex-col gap-6 shrink-0 lg:shrink min-h-0">
+          <div className="w-full lg:w-[65%] h-[600px] lg:h-auto flex flex-col gap-4 shrink-0 lg:shrink min-h-0">
             <div className="flex-1 min-h-0">
               <Editor
                 roomId={roomId}
@@ -402,12 +403,12 @@ export default function RoomPage() {
           </div>
 
           {/* Notepad (right, ~35% width on desktop) */}
-          <div className="w-full lg:w-[35%] h-[300px] lg:h-full flex flex-col shrink-0 lg:shrink">
+          <div className="w-full lg:w-[35%] h-[300px] lg:h-auto flex flex-col shrink-0 lg:shrink min-h-0">
             <Notepad ytext={noteText} />
           </div>
         </main>
       ) : (
-        <div className="flex flex-1 items-center justify-center bg-neutral-950 text-neutral-400 h-[calc(100vh-73px)]">
+        <div className="flex flex-1 items-center justify-center text-neutral-400 min-h-0">
           <div className="flex flex-col items-center gap-2">
             <span className="w-6 h-6 rounded-full border-2 border-teal-500 border-t-transparent animate-spin" />
             <span className="text-xs font-semibold uppercase tracking-wider animate-pulse">

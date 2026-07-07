@@ -25,16 +25,16 @@ export default function Notepad({ ytext }: NotepadProps) {
   }, [ytext]);
 
   return (
-    <div className="flex flex-col h-full border border-neutral-200 rounded-xl overflow-hidden shadow-2xl bg-white text-neutral-900">
+    <div className="flex flex-col h-full border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl bg-white/[0.03] backdrop-blur-md">
       {/* Notepad Header */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-neutral-200 bg-neutral-50 text-xs text-neutral-600 font-sans select-none">
-        <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-neutral-700">
-          <Notebook size={14} className="text-neutral-500" />
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/[0.08] bg-black/40 text-xs text-neutral-400 font-sans select-none">
+        <div className="flex items-center gap-1.5 font-bold uppercase tracking-wider text-neutral-300">
+          <Notebook size={14} className="text-amber-300/80" />
           <span>Notes / Scratchpad</span>
         </div>
         <div>
-          <span className="text-[10px] bg-neutral-200 text-neutral-600 px-2 py-0.5 rounded font-mono font-semibold">
-            Notepad
+          <span className="text-[10px] bg-white/[0.06] text-neutral-400 px-2 py-0.5 rounded font-mono font-semibold">
+            Shared
           </span>
         </div>
       </div>
@@ -43,7 +43,7 @@ export default function Notepad({ ytext }: NotepadProps) {
       <textarea
         ref={textareaRef}
         placeholder="Write brainstorm ideas, draft outlines, or rough notes here... edits sync automatically."
-        className="flex-1 w-full p-4 resize-none bg-white text-neutral-900 font-sans text-sm focus:outline-none placeholder:text-neutral-400 leading-relaxed"
+        className="flex-1 w-full p-4 resize-none bg-transparent text-neutral-200 font-sans text-sm focus:outline-none placeholder:text-neutral-500 leading-relaxed selection:bg-amber-500/20"
       />
     </div>
   );

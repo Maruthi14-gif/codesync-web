@@ -27,12 +27,18 @@ export default function Editor({ roomId, language, ytext, provider, localUser }:
     languages[language]?.extension || languages.javascript.extension,
     safeYCollab(ytext, provider.awareness),
     EditorView.lineWrapping,
+    EditorView.theme({
+      '&': { fontSize: '13px' },
+      '.cm-content': { fontFamily: 'var(--font-geist-mono), monospace', paddingBlock: '12px' },
+      '.cm-gutters': { fontFamily: 'var(--font-geist-mono), monospace' },
+      '&.cm-focused': { outline: 'none' },
+    }),
   ], [language, ytext, provider.awareness]);
 
   return (
-    <div className="flex flex-1 flex-col h-full border border-neutral-850 rounded-xl overflow-hidden shadow-2xl bg-neutral-900">
+    <div className="flex flex-1 flex-col h-full border border-white/[0.08] rounded-xl overflow-hidden shadow-2xl bg-[#0d1310]">
       {/* Local Session Status Bar */}
-      <div className="flex items-center justify-between px-4 py-2.5 border-b border-neutral-850 bg-neutral-950 text-xs text-neutral-400">
+      <div className="flex items-center justify-between px-4 py-2.5 border-b border-white/[0.08] bg-black/40 text-xs text-neutral-400">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
